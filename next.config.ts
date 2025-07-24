@@ -4,6 +4,17 @@ import { withSentryConfig } from '@sentry/nextjs';
 import createNextIntlPlugin from 'next-intl/plugin';
 import './src/libs/Env';
 
+// ==========================DOMAIN CDN CONFIG===================
+const cdnDomains = process.env.NEXT_PUBLIC_CDN_COMMON?.split(',').map(d => d.trim()) ?? [];
+const allDomains = [
+  ...cdnDomains,
+  'picsum.photos',
+  'files.druce.com',
+  'localhost',
+].filter(Boolean);
+const uniqueDomains = Array.from(new Set(allDomains));
+// =========================END DOMAIN CDN CONFIG================
+
 // Define the base Next.js configuration
 const baseConfig: NextConfig = {
   eslint: {
@@ -11,6 +22,17 @@ const baseConfig: NextConfig = {
   },
   poweredByHeader: false,
   reactStrictMode: true,
+  images: {
+    domains: uniqueDomains,
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '1337',
+        pathname: '/uploads/**',
+      },
+    ],
+  },
 };
 
 // Initialize the Next-Intl plugin
