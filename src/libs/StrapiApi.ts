@@ -307,7 +307,7 @@ class StrapiApiService {
     sort?: string;
     filters?: Record<string, any>;
   }): Promise<PagesResponse> {
-    const cacheKey = 'pages:all';
+    const cacheKey = `pages:${params?.page || ''}`;
 
     return await cacheService.remember(
       cacheKey,
@@ -336,7 +336,7 @@ class StrapiApiService {
           };
         }
       },
-      { ttl: 60 }, // 10 minutes cache
+      { ttl: 60 * 10 }, // 10 minutes cache
     );
   }
 
