@@ -402,7 +402,7 @@ class StrapiApiService {
           return [];
         }
       },
-      { ttl: 60 * 10 }, // 10 minutes cache for navigation
+      { ttl: 60 * 2 }, // 2 minutes cache for navigation (faster updates)
     );
   }
 
