@@ -105,6 +105,44 @@ export type CategoriesResponse = {
   };
 };
 
+export type Page = {
+  id: number;
+  documentId: string;
+  title: string;
+  slug: string;
+  content?: string;
+  publishedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    keywords?: string;
+    metaRobots?: string;
+    canonicalURL?: string;
+    structuredData?: any;
+  };
+  components?: Array<{
+    __component: string;
+    [key: string]: any;
+  }>;
+  isHomepage?: boolean;
+  parentPage?: Page;
+  childPages?: Page[];
+};
+
+export type PagesResponse = {
+  data: Page[];
+  meta: {
+    pagination: {
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
+};
+
 class StrapiApiService {
   async getPosts(_params?: {
     page?: number;
@@ -113,7 +151,7 @@ class StrapiApiService {
     filters?: Record<string, any>;
   }): Promise<PostsResponse> {
     const cacheKey = 'posts:all';
-    
+
     return await cacheService.remember(
       cacheKey,
       async () => {
@@ -138,13 +176,13 @@ class StrapiApiService {
           };
         }
       },
-      { ttl: 300 } // 5 minutes cache
+      { ttl: 60 }, // 5 minutes cache
     );
   }
 
   async getPostBySlug(slug: string): Promise<Post | null> {
     const cacheKey = `post:${slug}`;
-    
+
     return await cacheService.remember(
       cacheKey,
       async () => {
@@ -165,13 +203,13 @@ class StrapiApiService {
           return null;
         }
       },
-      { ttl: 600 } // 10 minutes cache for individual posts
+      { ttl: 60 }, // 10 minutes cache for individual posts
     );
   }
 
   async getCategories(): Promise<CategoriesResponse> {
     const cacheKey = 'categories:all';
-    
+
     return await cacheService.remember(
       cacheKey,
       async () => {
@@ -193,13 +231,13 @@ class StrapiApiService {
           };
         }
       },
-      { ttl: 900 } // 15 minutes cache for categories (they change less frequently)
+      { ttl: 60 }, // 15 minutes cache for categories (they change less frequently)
     );
   }
 
   async getFeaturedPosts(): Promise<PostsResponse> {
     const cacheKey = 'posts:featured';
-    
+
     return await cacheService.remember(
       cacheKey,
       async () => {
@@ -226,13 +264,13 @@ class StrapiApiService {
           };
         }
       },
-      { ttl: 600 } // 10 minutes cache for featured posts
+      { ttl: 60 }, // 10 minutes cache for featured posts
     );
   }
 
   async getPostsByCategory(categorySlug: string): Promise<PostsResponse> {
     const cacheKey = `posts:category:${categorySlug}`;
-    
+
     return await cacheService.remember(
       cacheKey,
       async () => {
@@ -259,7 +297,112 @@ class StrapiApiService {
           };
         }
       },
-      { ttl: 600 } // 10 minutes cache for category posts
+      { ttl: 60 }, // 10 minutes cache for category posts
+    );
+  }
+
+  async getPages(params?: {
+    page?: number;
+    pageSize?: number;
+    sort?: string;
+    filters?: Record<string, any>;
+  }): Promise<PagesResponse> {
+    const cacheKey = 'pages:all';
+
+    return await cacheService.remember(
+      cacheKey,
+      async () => {
+        try {
+          const searchParams = new URLSearchParams();
+          searchParams.append('populate[seo]', '*');
+          searchParams.append('populate[components]', '*');
+          searchParams.append('populate[parentPage]', '*');
+          searchParams.append('populate[childPages]', '*');
+
+          const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching pages:', error);
+          return {
+            data: [],
+            meta: {
+              pagination: {
+                page: 1,
+                pageSize: 25,
+                pageCount: 0,
+                total: 0,
+              },
+            },
+          };
+        }
+      },
+      { ttl: 60 }, // 10 minutes cache
+    );
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | null> {
+    const cacheKey = `page:${slug}`;
+
+    return await cacheService.remember(
+      cacheKey,
+      async () => {
+        try {
+          // Using the simple slug parameter approach
+          const response = await axiosInstance.get(`/pages?slug=${slug}`);
+
+          return response.data.data;
+        } catch (error) {
+          console.error('Error fetching page by slug:', error);
+          return null;
+        }
+      },
+      { ttl: 60 }, // 30 minutes cache for pages (they change less frequently than posts)
+    );
+  }
+
+  async getHomepage(): Promise<Page | null> {
+    const cacheKey = 'page:homepage';
+
+    return await cacheService.remember(
+      cacheKey,
+      async () => {
+        try {
+          const searchParams = new URLSearchParams();
+          searchParams.append('filters[isHomepage][$eq]', 'true');
+          searchParams.append('populate[seo]', '*');
+          searchParams.append('populate[components]', '*');
+
+          const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
+
+          if (response.data.data.length === 0) {
+            return null;
+          }
+
+          return response.data.data[0];
+        } catch (error) {
+          console.error('Error fetching homepage:', error);
+          return null;
+        }
+      },
+      { ttl: 60 }, // 30 minutes cache for homepage
+    );
+  }
+
+  async getNavigation(name: string = 'main'): Promise<any> {
+    const cacheKey = `navigation:${name}`;
+
+    return await cacheService.remember(
+      cacheKey,
+      async () => {
+        try {
+          const response = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*`);
+          return response.data;
+        } catch (error) {
+          console.error('Error fetching navigation:', error);
+          return [];
+        }
+      },
+      { ttl: 60 * 10 }, // 10 minutes cache for navigation
     );
   }
 
@@ -273,3 +416,4 @@ class StrapiApiService {
 }
 
 export const strapiApi = new StrapiApiService();
+export const StrapiApi = strapiApi;

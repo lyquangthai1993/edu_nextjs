@@ -14,11 +14,9 @@ export const BaseTemplate = (props: {
         <header className="border-b border-gray-300">
 
           <div className="flex justify-between">
-            <nav aria-label="Main navigation">
-              <ul className="flex flex-wrap gap-x-5 text-xl">
-                {props.leftNav}
-              </ul>
-            </nav>
+            <div className="flex-1">
+              {props.leftNav}
+            </div>
 
             <nav>
               <ul className="flex flex-wrap gap-x-5 text-xl">

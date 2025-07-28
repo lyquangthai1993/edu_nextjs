@@ -2,7 +2,7 @@ import Redis from 'ioredis';
 
 class RedisClient {
   private client: Redis | null = null;
-  private isConnected = false;
+  private connectionPromise: Promise<Redis | null> | null = null;
 
   private createClient(): Redis {
     const redis = new Redis({
@@ -16,37 +16,51 @@ class RedisClient {
 
     redis.on('connect', () => {
       console.log('✅ Redis connected');
-      this.isConnected = true;
     });
 
     redis.on('error', (error) => {
       console.error('❌ Redis connection error:', error);
-      this.isConnected = false;
     });
 
     redis.on('close', () => {
       console.log('⚠️ Redis connection closed');
-      this.isConnected = false;
+      this.client = null;
+      this.connectionPromise = null;
     });
 
     return redis;
   }
 
   async getClient(): Promise<Redis | null> {
-    if (!this.client) {
-      this.client = this.createClient();
+    if (this.client && this.client.status === 'ready') {
+      return this.client;
     }
 
-    if (!this.isConnected) {
-      try {
-        await this.client.connect();
-      } catch (error) {
-        console.error('Failed to connect to Redis:', error);
-        return null;
+    if (this.connectionPromise) {
+      return this.connectionPromise;
+    }
+
+    this.connectionPromise = this.connect();
+    return this.connectionPromise;
+  }
+
+  private async connect(): Promise<Redis | null> {
+    try {
+      if (!this.client) {
+        this.client = this.createClient();
       }
-    }
 
-    return this.client;
+      if (this.client.status !== 'ready') {
+        await this.client.connect();
+      }
+
+      return this.client;
+    } catch (error) {
+      console.error('Failed to connect to Redis:', error);
+      this.client = null;
+      this.connectionPromise = null;
+      return null;
+    }
   }
 
   async get(key: string): Promise<string | null> {
@@ -138,7 +152,7 @@ class RedisClient {
     if (this.client) {
       await this.client.disconnect();
       this.client = null;
-      this.isConnected = false;
+      this.connectionPromise = null;
     }
   }
 }

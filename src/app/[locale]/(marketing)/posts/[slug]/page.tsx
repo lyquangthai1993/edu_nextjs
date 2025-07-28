@@ -225,4 +225,17 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   );
 }
 
+// Generate static params for all posts at build time
+export async function generateStaticParams() {
+  try {
+    const postsResponse = await strapiApi.getPosts();
+    return postsResponse.data.map((post) => ({
+      slug: post.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params for posts:', error);
+    return [];
+  }
+}
+
 export const revalidate = 60;

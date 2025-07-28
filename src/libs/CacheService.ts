@@ -1,12 +1,12 @@
 import { redisClient } from './Redis';
 
-interface CacheOptions {
+type CacheOptions = {
   ttl?: number; // Time to live in seconds
   prefix?: string; // Key prefix for namespacing
-}
+};
 
 class CacheService {
-  private defaultTTL = 300; // 5 minutes default
+  private defaultTTL = 300; // 5-minute default
   private defaultPrefix = 'strapi';
 
   private generateKey(key: string, prefix?: string): string {
@@ -18,7 +18,7 @@ class CacheService {
     try {
       const cacheKey = this.generateKey(key, options?.prefix);
       const cached = await redisClient.get(cacheKey);
-      
+
       if (!cached) {
         return null;
       }
@@ -35,7 +35,7 @@ class CacheService {
       const cacheKey = this.generateKey(key, options?.prefix);
       const ttl = options?.ttl || this.defaultTTL;
       const serialized = JSON.stringify(value);
-      
+
       return await redisClient.set(cacheKey, serialized, ttl);
     } catch (error) {
       console.error('Cache SET error:', error);
@@ -78,7 +78,7 @@ class CacheService {
   async remember<T>(
     key: string,
     fetchFunction: () => Promise<T>,
-    options?: CacheOptions
+    options?: CacheOptions,
   ): Promise<T> {
     // Try to get from cache first
     const cached = await this.get<T>(key, options);
@@ -90,10 +90,10 @@ class CacheService {
     // If not in cache, fetch the data
     console.log(`🔄 Cache MISS: ${key} - Fetching fresh data`);
     const fresh = await fetchFunction();
-    
+
     // Store in cache for next time
     await this.set(key, fresh, options);
-    
+
     return fresh;
   }
 
@@ -119,21 +119,21 @@ class CacheService {
     try {
       const testKey = 'health:check';
       const testValue = Date.now().toString();
-      
+
       await this.set(testKey, testValue, { ttl: 10 });
       const retrieved = await this.get<string>(testKey);
       await this.del(testKey);
-      
+
       const isHealthy = retrieved === testValue;
-      
+
       return {
         status: isHealthy ? 'healthy' : 'unhealthy',
-        connected: isHealthy
+        connected: isHealthy,
       };
     } catch (error) {
       return {
         status: 'error',
-        connected: false
+        connected: false,
       };
     }
   }
