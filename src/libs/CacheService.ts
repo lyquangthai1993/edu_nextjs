@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { redisClient } from './Redis';
 
 type CacheOptions = {
@@ -80,7 +81,7 @@ class CacheService {
     fetchFunction: () => Promise<T>,
     options?: CacheOptions,
   ): Promise<T> {
-    // Try to get from cache first
+    // Try to get from the cache first
     const cached = await this.get<T>(key, options);
     if (cached !== null) {
       console.log(`📦 Cache HIT: ${key}`);
@@ -91,7 +92,7 @@ class CacheService {
     console.log(`🔄 Cache MISS: ${key} - Fetching fresh data`);
     const fresh = await fetchFunction();
 
-    // Store in cache for next time
+    // Store in a cache for next time
     await this.set(key, fresh, options);
 
     return fresh;
@@ -131,6 +132,7 @@ class CacheService {
         connected: isHealthy,
       };
     } catch (error) {
+      console.error('Cache health check error:', error);
       return {
         status: 'error',
         connected: false,

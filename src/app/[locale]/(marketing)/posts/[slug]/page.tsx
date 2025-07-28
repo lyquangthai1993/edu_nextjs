@@ -229,7 +229,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
 export async function generateStaticParams() {
   try {
     const postsResponse = await strapiApi.getPosts();
-    return postsResponse.data.map((post) => ({
+    return postsResponse.data.map(post => ({
       slug: post.slug,
     }));
   } catch (error) {

@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react-dom/no-dangerously-set-innerhtml */
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { strapiApi } from '@/libs/StrapiApi';
@@ -49,7 +51,7 @@ async function getPageBySlug(slug: string) {
 export async function generateStaticParams() {
   try {
     const pagesResponse = await strapiApi.getPages();
-    return pagesResponse.data.map((page) => ({
+    return pagesResponse.data.map(page => ({
       slug: page.slug.split('/'), // Handle nested paths
     }));
   } catch (error) {
@@ -81,11 +83,11 @@ export default async function DynamicPage({ params }: PageProps) {
         )}
 
         {/* Render dynamic components if any */}
-        {page.components && page.components.map((component, index: number) => {
+        {page.components && page.components.map((component) => {
           switch (component.__component) {
             case 'basic.page':
               return (
-                <div key={index} className="my-8">
+                <div key={component.title} className="my-8">
                   <h2 className="text-2xl font-semibold mb-4">{component.title}</h2>
                   {component.content && (
                     <div
