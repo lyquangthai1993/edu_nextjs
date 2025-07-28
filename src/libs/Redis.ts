@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import Redis from 'ioredis';
 
 class RedisClient {
@@ -9,9 +10,10 @@ class RedisClient {
       host: process.env.REDIS_HOST || 'localhost',
       port: Number(process.env.REDIS_PORT) || 6379,
       password: process.env.REDIS_PASSWORD,
-      retryDelayOnFailover: 100,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
+      connectTimeout: 10000,
+      commandTimeout: 5000,
     });
 
     redis.on('connect', () => {
@@ -66,8 +68,10 @@ class RedisClient {
   async get(key: string): Promise<string | null> {
     try {
       const client = await this.getClient();
-      if (!client) return null;
-      
+      if (!client) {
+        return null;
+      }
+
       return await client.get(key);
     } catch (error) {
       console.error('Redis GET error:', error);
@@ -78,14 +82,16 @@ class RedisClient {
   async set(key: string, value: string, ttlSeconds?: number): Promise<boolean> {
     try {
       const client = await this.getClient();
-      if (!client) return false;
+      if (!client) {
+        return false;
+      }
 
       if (ttlSeconds) {
         await client.setex(key, ttlSeconds, value);
       } else {
         await client.set(key, value);
       }
-      
+
       return true;
     } catch (error) {
       console.error('Redis SET error:', error);
@@ -96,8 +102,10 @@ class RedisClient {
   async del(key: string): Promise<boolean> {
     try {
       const client = await this.getClient();
-      if (!client) return false;
-      
+      if (!client) {
+        return false;
+      }
+
       await client.del(key);
       return true;
     } catch (error) {
@@ -109,13 +117,15 @@ class RedisClient {
   async delPattern(pattern: string): Promise<boolean> {
     try {
       const client = await this.getClient();
-      if (!client) return false;
-      
+      if (!client) {
+        return false;
+      }
+
       const keys = await client.keys(pattern);
       if (keys.length > 0) {
         await client.del(...keys);
       }
-      
+
       return true;
     } catch (error) {
       console.error('Redis DEL pattern error:', error);
@@ -126,8 +136,10 @@ class RedisClient {
   async exists(key: string): Promise<boolean> {
     try {
       const client = await this.getClient();
-      if (!client) return false;
-      
+      if (!client) {
+        return false;
+      }
+
       const result = await client.exists(key);
       return result === 1;
     } catch (error) {
@@ -139,8 +151,10 @@ class RedisClient {
   async ttl(key: string): Promise<number> {
     try {
       const client = await this.getClient();
-      if (!client) return -1;
-      
+      if (!client) {
+        return -1;
+      }
+
       return await client.ttl(key);
     } catch (error) {
       console.error('Redis TTL error:', error);
