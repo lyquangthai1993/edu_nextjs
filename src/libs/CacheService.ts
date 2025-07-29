@@ -115,6 +115,15 @@ class CacheService {
     return await this.delPattern('categories:*');
   }
 
+  // Aliases for consistency
+  async delete(key: string, options?: CacheOptions): Promise<boolean> {
+    return await this.del(key, options);
+  }
+
+  async deletePattern(pattern: string, options?: CacheOptions): Promise<boolean> {
+    return await this.delPattern(pattern, options);
+  }
+
   // Health check
   async healthCheck(): Promise<{ status: string; connected: boolean }> {
     try {

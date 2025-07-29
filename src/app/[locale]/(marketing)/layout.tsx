@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import Link from 'next/link';
+import { Link } from '@/libs/I18nNavigation';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import Navigation from '@/components/Navigation';
 import { BaseTemplate } from '@/templates/BaseTemplate';
@@ -18,7 +18,7 @@ export default async function Layout(props: {
   return (
     <>
       <BaseTemplate
-        leftNav={<Navigation />}
+        leftNav={<Navigation locale={locale} />}
         rightNav={(
           <>
             <li>

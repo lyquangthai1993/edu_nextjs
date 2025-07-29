@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/libs/I18nNavigation';
 import { strapiApi } from '@/libs/StrapiApi';
 
 type NavigationItem = {
@@ -18,18 +18,22 @@ type NavigationItem = {
   items?: NavigationItem[];
 };
 
-export default async function Navigation() {
-  const navigation = await strapiApi.getNavigation('Navigation');
+type NavigationProps = {
+  locale: string;
+};
 
-  console.error(
-    '>>>>>>>>>>>>START navigation<<<<<<\n',
-    JSON.stringify(navigation),
-    '\n>>>>>>>>>>>>>>>END navigation<<<<<<<<<<<<<<',
-  );
+export default async function Navigation({ locale }: NavigationProps) {
+  const navigation = await strapiApi.getNavigation('Navigation', locale);
 
   const generateHref = (item: NavigationItem): string => {
+    // External links - return as-is (no locale needed)
+    if (item.type === 'EXTERNAL' && item.path) {
+      return item.path;
+    }
+
     // Use custom path if provided (but ignore if it's just '/')
     if (item.path && item.path !== '/') {
+      // For custom paths, don't add locale prefix as they might be external or special routes
       return item.path;
     }
 
@@ -47,11 +51,6 @@ export default async function Navigation() {
 
       // Default fallback for other content types
       return `/${item.related.slug}`;
-    }
-
-    // External links
-    if (item.type === 'EXTERNAL' && item.path) {
-      return item.path;
     }
 
     // Fallback

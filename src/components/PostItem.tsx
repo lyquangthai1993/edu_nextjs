@@ -1,6 +1,6 @@
 import type { Post } from '@/libs/StrapiApi';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/libs/I18nNavigation';
 import { strapiApi } from '@/libs/StrapiApi';
 import { formatStatus, getStatusColors } from '@/utils/PostHelpers';
 
@@ -39,7 +39,7 @@ export function PostItem({ post }: PostItemProps) {
     >
       <Link href={`/posts/${post.slug}`}>
         {/* Featured Image */}
-        <div className="relative h-[200px] overflow-hidden">
+        <div className="relative h-[200px] overflow-hidden m-4">
           {post.isFeatured && (
             <span className="absolute right-1 top-1 inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
               ⭐ Featured
@@ -52,7 +52,7 @@ export function PostItem({ post }: PostItemProps) {
                   src={strapiApi.getImageUrl(post.featuredImage.url)}
                   alt={post.featuredImage.alternativeText || post.title}
                   fill
-                  className="absolute inset-0 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="absolute inset-0 object-contain transition-transform duration-300 group-hover:scale-105"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               )
@@ -97,11 +97,10 @@ export function PostItem({ post }: PostItemProps) {
           </h2>
 
           {/* Excerpt */}
-          {post.excerpt && (
-            <p className="mb-4 text-sm text-gray-600 line-clamp-3 leading-relaxed">
-              {post.excerpt}
-            </p>
-          )}
+
+          <p className="mb-4 text-sm text-gray-600 line-clamp-3 leading-relaxed min-h-[70px]">
+            {post.excerpt ?? ''}
+          </p>
 
           {/* Footer */}
           <div className="flex items-center justify-between pt-4 text-xs text-gray-500">

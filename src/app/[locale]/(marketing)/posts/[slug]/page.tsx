@@ -1,8 +1,9 @@
+/* eslint-disable no-console */
 import type { Metadata } from 'next';
 import type { Post } from '@/libs/StrapiApi';
 import { setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/libs/I18nNavigation';
 import { notFound } from 'next/navigation';
 import { strapiApi } from '@/libs/StrapiApi';
 import { formatStatus, getStatusColors } from '@/utils/PostHelpers';
@@ -14,13 +15,13 @@ type PostPageProps = {
   }>;
 };
 
-async function getPost(slug: string): Promise<Post | null> {
-  return await strapiApi.getPostBySlug(slug);
+async function getPost(slug: string, locale: string = 'en'): Promise<Post | null> {
+  return await strapiApi.getPostBySlug(slug, locale);
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const post = await getPost(slug);
+  const { locale, slug } = await params;
+  const post = await getPost(slug, locale);
 
   if (!post) {
     return {
@@ -62,7 +63,12 @@ export default async function PostDetailPage({ params }: PostPageProps) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const post = await getPost(slug);
+  const post = await getPost(slug, locale);
+  console.log(
+    '>>>>>>>>>>>>>POST CONTENT<<<<<<<<<<<<\n',
+    JSON.stringify(post, null, 2),
+    '\n>>>>>>>>>>>>>POST CONTENT<<<<<<<<<<<<\n',
+  );
 
   if (!post) {
     notFound();
@@ -228,10 +234,19 @@ export default async function PostDetailPage({ params }: PostPageProps) {
 // Generate static params for all posts at build time
 export async function generateStaticParams() {
   try {
-    const postsResponse = await strapiApi.getPosts();
-    return postsResponse.data.map((post: Post) => ({
-      slug: post.slug,
-    }));
+    const locales = ['en', 'vi']; // Add your supported locales here
+    const allParams: { locale: string; slug: string }[] = [];
+    
+    for (const locale of locales) {
+      const postsResponse = await strapiApi.getPosts({ locale });
+      const localeParams = postsResponse.data.map((post: Post) => ({
+        locale,
+        slug: post.slug,
+      }));
+      allParams.push(...localeParams);
+    }
+    
+    return allParams;
   } catch (error) {
     console.error('Error generating static params for posts:', error);
     return [];

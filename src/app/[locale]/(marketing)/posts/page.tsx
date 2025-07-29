@@ -3,8 +3,8 @@ import { setRequestLocale } from 'next-intl/server';
 import { PostItem } from '@/components/PostItem';
 import { strapiApi } from '@/libs/StrapiApi';
 
-async function getPosts(): Promise<PostsResponse> {
-  return await strapiApi.getPosts();
+async function getPosts(locale: string = 'en'): Promise<PostsResponse> {
+  return await strapiApi.getPosts({ locale });
 }
 
 export default async function PostsPage(props: {
@@ -13,7 +13,7 @@ export default async function PostsPage(props: {
   const { locale } = await props.params;
   setRequestLocale(locale);
 
-  const postsData = await getPosts();
+  const postsData = await getPosts(locale);
   const posts = postsData.data;
 
   return (
@@ -22,13 +22,13 @@ export default async function PostsPage(props: {
       <div className="bg-white border-b border-gray-200">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl leading-tight">
               <span className="block">Our</span>
-              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent min-h-[80px]">
                 Blog Posts
               </span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
+            <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 leading-relaxed">
               Discover insights, tutorials, and stories from our team. Stay updated with the latest trends and best practices.
             </p>
           </div>

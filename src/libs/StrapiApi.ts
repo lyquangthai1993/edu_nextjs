@@ -111,9 +111,56 @@ export type Page = {
   title: string;
   slug: string;
   content?: string;
+  excerpt?: string;
   publishedAt: string;
   createdAt: string;
   updatedAt: string;
+  featuredImage?: {
+    id: number;
+    documentId: string;
+    name: string;
+    alternativeText?: string;
+    caption?: string;
+    width: number;
+    height: number;
+    formats?: {
+      small?: {
+        ext: string;
+        url: string;
+        hash: string;
+        mime: string;
+        name: string;
+        path?: string;
+        size: number;
+        width: number;
+        height: number;
+        sizeInBytes: number;
+      };
+      thumbnail?: {
+        ext: string;
+        url: string;
+        hash: string;
+        mime: string;
+        name: string;
+        path?: string;
+        size: number;
+        width: number;
+        height: number;
+        sizeInBytes: number;
+      };
+    };
+    hash: string;
+    ext: string;
+    mime: string;
+    size: number;
+    url: string;
+    previewUrl?: string;
+    provider: string;
+    provider_metadata?: any;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+  };
   seo?: {
     metaTitle?: string;
     metaDescription?: string;
@@ -144,13 +191,14 @@ export type PagesResponse = {
 };
 
 class StrapiApiService {
-  async getPosts(_params?: {
+  async getPosts(params?: {
     page?: number;
     pageSize?: number;
     sort?: string;
     filters?: Record<string, any>;
+    locale?: string;
   }): Promise<PostsResponse> {
-    const cacheKey = 'posts:all';
+    const cacheKey = `posts:${params?.locale || 'en'}:all`;
 
     return await cacheService.remember(
       cacheKey,
@@ -158,6 +206,9 @@ class StrapiApiService {
         try {
           const searchParams = new URLSearchParams();
           searchParams.append('populate', '*');
+          if (params?.locale) {
+            searchParams.append('locale', params.locale);
+          }
 
           const response = await axiosInstance.get(`/posts?${searchParams.toString()}`);
           return response.data;
@@ -180,8 +231,8 @@ class StrapiApiService {
     );
   }
 
-  async getPostBySlug(slug: string): Promise<Post | null> {
-    const cacheKey = `post:${slug}`;
+  async getPostBySlug(slug: string, locale: string = 'en'): Promise<Post | null> {
+    const cacheKey = `post:${locale}:${slug}`;
 
     return await cacheService.remember(
       cacheKey,
@@ -190,14 +241,18 @@ class StrapiApiService {
           const searchParams = new URLSearchParams();
           searchParams.append('filters[slug][$eq]', slug);
           searchParams.append('populate', '*');
+          searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(`/posts?${searchParams.toString()}`);
-
-          if (response.data.data.length === 0) {
+          console.log('url request post slug', `/posts?${searchParams.toString()}`);
+          if (!response?.data) {
+            return null;
+          }
+          if (response?.data?.data?.length === 0) {
             return null;
           }
 
-          return response.data.data[0];
+          return response?.data?.data ? response?.data?.data[0] : null;
         } catch (error) {
           console.error('Error fetching post by slug:', error);
           return null;
@@ -306,18 +361,19 @@ class StrapiApiService {
     pageSize?: number;
     sort?: string;
     filters?: Record<string, any>;
+    locale?: string;
   }): Promise<PagesResponse> {
-    const cacheKey = `pages:${params?.page || ''}`;
-
+    const cacheKey = `pages:${params?.locale || 'en'}:${params?.page || 'all'}`;
+    console.info('Fetching pages:', cacheKey);
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append('populate[seo]', '*');
-          searchParams.append('populate[components]', '*');
-          searchParams.append('populate[parentPage]', '*');
-          searchParams.append('populate[childPages]', '*');
+          searchParams.append('populate', '*');
+          if (params?.locale) {
+            searchParams.append('locale', params.locale);
+          }
 
           const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
           return response.data;
@@ -340,17 +396,28 @@ class StrapiApiService {
     );
   }
 
-  async getPageBySlug(slug: string): Promise<Page | null> {
-    const cacheKey = `page:${slug}`;
+  async getPageBySlug(slug: string, locale: string = 'en'): Promise<Page | null> {
+    const cacheKey = `page:${locale}:${slug}`;
 
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
-          // Using the simple slug parameter approach
-          const response = await axiosInstance.get(`/pages?slug=${slug}`);
+          const searchParams = new URLSearchParams();
+          searchParams.append('filters[slug][$eq]', slug);
+          searchParams.append('populate', '*');
+          searchParams.append('locale', locale);
 
-          return response.data.data;
+          const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
+
+          console.log(`🔍 API URL: /pages?${searchParams.toString()}`);
+          console.log(`📊 Response:`, response.data);
+
+          if (response.data.data.length === 0) {
+            return null;
+          }
+
+          return response.data.data[0];
         } catch (error) {
           console.error('Error fetching page by slug:', error);
           return null;
@@ -360,8 +427,8 @@ class StrapiApiService {
     );
   }
 
-  async getHomepage(): Promise<Page | null> {
-    const cacheKey = 'page:homepage';
+  async getHomepage(locale: string = 'en'): Promise<Page | null> {
+    const cacheKey = `page:${locale}:homepage`;
 
     return await cacheService.remember(
       cacheKey,
@@ -369,8 +436,10 @@ class StrapiApiService {
         try {
           const searchParams = new URLSearchParams();
           searchParams.append('filters[isHomepage][$eq]', 'true');
+          searchParams.append('populate[featuredImage]', '*');
           searchParams.append('populate[seo]', '*');
           searchParams.append('populate[components]', '*');
+          searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
 
@@ -388,14 +457,14 @@ class StrapiApiService {
     );
   }
 
-  async getNavigation(name: string = 'main'): Promise<any> {
-    const cacheKey = `navigation:${name}`;
+  async getNavigation(name: string = 'main', locale: string = 'en'): Promise<any> {
+    const cacheKey = `navigation:${name}:${locale}`;
 
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
-          const response = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*`);
+          const response = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*&locale=${locale}`);
           return response.data;
         } catch (error) {
           console.error('Error fetching navigation:', error);
@@ -404,6 +473,35 @@ class StrapiApiService {
       },
       { ttl: 60 * 2 }, // 2 minutes cache for navigation (faster updates)
     );
+  }
+
+  // Cache invalidation methods
+  async invalidateNavigationCache(navigationName: string = 'Navigation', locale?: string): Promise<boolean> {
+    if (locale) {
+      const cacheKey = `navigation:${navigationName}:${locale}`;
+      return await cacheService.delete(cacheKey);
+    } else {
+      // Invalidate all locales for this navigation
+      return await cacheService.deletePattern(`navigation:${navigationName}:*`);
+    }
+  }
+
+  async invalidatePostCache(slug: string): Promise<boolean> {
+    const cacheKey = `post:${slug}`;
+    return await cacheService.delete(cacheKey);
+  }
+
+  async invalidatePageCache(slug: string): Promise<boolean> {
+    const cacheKey = `page:${slug}`;
+    return await cacheService.delete(cacheKey);
+  }
+
+  async invalidateAllPosts(): Promise<boolean> {
+    return await cacheService.deletePattern('posts:*');
+  }
+
+  async invalidateAllPages(): Promise<boolean> {
+    return await cacheService.deletePattern('pages:*');
   }
 
   getImageUrl(url: string): string {
