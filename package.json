@@ -39,6 +39,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@logtape/logtape": "^1.0.4",
     "@sentry/nextjs": "^9.38.0",
+    "@strapi/blocks-react-renderer": "^1.0.2",
     "@t3-oss/env-nextjs": "^0.13.8",
     "@types/ioredis": "^5.0.0",
     "axios": "^1.11.0",
@@ -48,8 +49,8 @@
     "next-intl": "^4.3.4",
     "pg": "^8.16.3",
     "posthog-js": "^1.257.0",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-hook-form": "^7.60.0",
     "zod": "^4.0.5"
   },

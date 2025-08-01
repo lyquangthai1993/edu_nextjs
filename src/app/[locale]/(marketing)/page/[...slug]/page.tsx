@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
-/* eslint-disable react-dom/no-dangerously-set-innerhtml */
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { BlocksRenderer } from '@strapi/blocks-react-renderer';
 import { strapiApi } from '@/libs/StrapiApi';
 
 type PageProps = {
@@ -81,6 +81,28 @@ async function getPageBySlug(slug: string, locale: string = 'en') {
   }
 }
 
+// Custom components for blocks renderer
+const blocksConfig = {
+  image: ({ image }: any) => {
+    return (
+      <div className="my-8">
+        <Image
+          src={strapiApi.getImageUrl(image.url)}
+          alt={image.alternativeText || ''}
+          width={image.width}
+          height={image.height}
+          className="rounded-lg mx-auto"
+        />
+        {image.caption && (
+          <p className="text-center text-sm text-gray-600 mt-2 italic">
+            {image.caption}
+          </p>
+        )}
+      </div>
+    );
+  },
+};
+
 // Generate static params for all pages at build time
 export async function generateStaticParams() {
   try {
@@ -141,10 +163,13 @@ export default async function DynamicPage({ params }: PageProps) {
         )}
 
         {page.content && (
-          <div
-            className="content"
-            dangerouslySetInnerHTML={{ __html: page.content }}
-          />
+          <div className="content">
+            {Array.isArray(page.content) ? (
+              <BlocksRenderer content={page.content} blocks={blocksConfig} />
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: page.content }} />
+            )}
+          </div>
         )}
 
         {/* Render dynamic components if any */}
@@ -155,9 +180,9 @@ export default async function DynamicPage({ params }: PageProps) {
                 <div key={component.title} className="my-8">
                   <h2 className="text-2xl font-semibold mb-4">{component.title}</h2>
                   {component.content && (
-                    <div
-                      dangerouslySetInnerHTML={{ __html: component.content }}
-                    />
+                    <div>
+                      <BlocksRenderer content={component.content} blocks={blocksConfig} />
+                    </div>
                   )}
                 </div>
               );

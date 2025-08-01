@@ -1,10 +1,11 @@
 /* eslint-disable no-console */
 import type { Metadata } from 'next';
 import type { Post } from '@/libs/StrapiApi';
+import { BlocksRenderer } from '@strapi/blocks-react-renderer';
 import { setRequestLocale } from 'next-intl/server';
 import Image from 'next/image';
-import { Link } from '@/libs/I18nNavigation';
 import { notFound } from 'next/navigation';
+import { Link } from '@/libs/I18nNavigation';
 import { strapiApi } from '@/libs/StrapiApi';
 import { formatStatus, getStatusColors } from '@/utils/PostHelpers';
 
@@ -55,9 +56,27 @@ function formatDate(dateString: string): string {
   });
 }
 
-function formatContent(content: string): string {
-  return content.replace(/\n/g, '<br />');
-}
+// Custom components for blocks renderer
+const blocksConfig = {
+  image: ({ image }: any) => {
+    return (
+      <div className="my-8">
+        <Image
+          src={strapiApi.getImageUrl(image.url)}
+          alt={image.alternativeText || ''}
+          width={image.width}
+          height={image.height}
+          className="rounded-lg mx-auto"
+        />
+        {image.caption && (
+          <p className="text-center text-sm text-gray-600 mt-2 italic">
+            {image.caption}
+          </p>
+        )}
+      </div>
+    );
+  },
+};
 
 export default async function PostDetailPage({ params }: PostPageProps) {
   const { locale, slug } = await params;
@@ -158,13 +177,13 @@ export default async function PostDetailPage({ params }: PostPageProps) {
       )}
 
       <div className="prose prose-lg max-w-none">
-        <div
-          // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
-          dangerouslySetInnerHTML={{
-            __html: formatContent(post.content),
-          }}
-          className="text-gray-800 leading-relaxed"
-        />
+        <div className="text-gray-800 leading-relaxed">
+          {Array.isArray(post.content) ? (
+            <BlocksRenderer content={post.content} blocks={blocksConfig} />
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: post.content }} />
+          )}
+        </div>
       </div>
 
       {post.tags && post.tags.length > 0 && (
@@ -236,7 +255,7 @@ export async function generateStaticParams() {
   try {
     const locales = ['en', 'vi']; // Add your supported locales here
     const allParams: { locale: string; slug: string }[] = [];
-    
+
     for (const locale of locales) {
       const postsResponse = await strapiApi.getPosts({ locale });
       const localeParams = postsResponse.data.map((post: Post) => ({
@@ -245,7 +264,7 @@ export async function generateStaticParams() {
       }));
       allParams.push(...localeParams);
     }
-    
+
     return allParams;
   } catch (error) {
     console.error('Error generating static params for posts:', error);
