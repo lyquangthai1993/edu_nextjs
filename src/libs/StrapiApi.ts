@@ -1,3 +1,4 @@
+import { AppConfig } from '@/utils/AppConfig';
 import axiosInstance from './Axios';
 import { cacheService } from './CacheService';
 
@@ -464,10 +465,43 @@ class StrapiApiService {
       cacheKey,
       async () => {
         try {
+          // Try to fetch navigation for the requested locale
           const response = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*&locale=${locale}`);
-          return response.data;
+
+          // If we got data, return it
+          if (response.data && Array.isArray(response.data) && response.data.length > 0) {
+            return response.data;
+          }
+
+          // If no data and not using default locale, try default locale
+          if (locale !== AppConfig.defaultLocale) {
+            console.info(`No navigation data for locale '${locale}', trying default locale '${AppConfig.defaultLocale}'`);
+            const fallbackResponse = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*&locale=${AppConfig.defaultLocale}`);
+
+            if (fallbackResponse.data && Array.isArray(fallbackResponse.data) && fallbackResponse.data.length > 0) {
+              return fallbackResponse.data;
+            }
+          }
+
+          // If still no data, return empty array
+          return [];
         } catch (error) {
           console.error('Error fetching navigation:', error);
+
+          // If we failed to fetch for the requested locale and it's not the default locale, try default locale
+          if (locale !== AppConfig.defaultLocale) {
+            try {
+              console.log(`Failed to fetch navigation for locale '${locale}', trying default locale '${AppConfig.defaultLocale}'`);
+              const fallbackResponse = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*&locale=${AppConfig.defaultLocale}`);
+
+              if (fallbackResponse.data && Array.isArray(fallbackResponse.data) && fallbackResponse.data.length > 0) {
+                return fallbackResponse.data;
+              }
+            } catch (fallbackError) {
+              console.error('Error fetching navigation with default locale:', fallbackError);
+            }
+          }
+
           return [];
         }
       },
