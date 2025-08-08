@@ -69,14 +69,6 @@ export default antfu(
       'test/padding-around-all': 'error', // Add padding in test files
       'test/prefer-lowercase-title': 'off', // Allow using uppercase titles in test titles
       'no-console': ['error', { allow: ['warn', 'error', 'info'] }], // Allow console.info along with warn and error
-
-      // Disable auto-fixing for these rules (only warn, don't auto-fix)
-      'style/indent': 'warn', // Don't auto-fix indentation
-      'style/quotes': 'warn', // Don't auto-fix quote style
-      'style/semi': 'warn', // Don't auto-fix semicolons
-      'style/jsx-curly-brace-presence': 'warn', // Don't auto-fix JSX braces
-      'perfectionist/sort-objects': 'off', // Disable object sorting
-      'perfectionist/sort-keys': 'off', // Disable key sorting
     },
   },
 );
