@@ -548,4 +548,3 @@ class StrapiApiService {
 }
 
 export const strapiApi = new StrapiApiService();
-export const StrapiApi = strapiApi;

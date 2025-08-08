@@ -31,7 +31,7 @@ pre-commit:
     check-types:
       glob: '*.{ts,tsx}'
       run: npm run check:types
-      priority: 3
+      priority: 4
 
     # Check for secrets and sensitive data
     check-secrets:
@@ -41,19 +41,19 @@ pre-commit:
           echo "❌ Potential secrets found in staged files!"
           exit 1
         fi
-      priority: 4
+      priority: 5
 
     # Check dependencies
     check-deps:
       glob: 'package*.json'
       run: npm run check:deps
-      priority: 5
+      priority: 6
 
     # I18n validation
     check-i18n:
       glob: 'src/locales/**/*.json'
       run: npm run check:i18n
-      priority: 6
+      priority: 7
 
 # Additional validation before pushing
 pre-push:
