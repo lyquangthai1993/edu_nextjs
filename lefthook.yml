@@ -6,13 +6,88 @@ commit-msg:
 
 # Validate content before committing
 pre-commit:
+  parallel: true
   commands:
-    lint:
-      glob: '*'
-      run: npx --no -- eslint --fix --no-warn-ignored
+    # Code formatting and linting
+    prettier:
+      glob: '*.{js,jsx,ts,tsx,json,css,md,yml,yaml}'
+      run: npx --no -- prettier --write {staged_files}
       stage_fixed: true
       priority: 1
+    
+    lint:
+      glob: '*.{js,jsx,ts,tsx}'
+      run: npx --no -- eslint --fix --no-warn-ignored {staged_files}
+      stage_fixed: true
+      priority: 2
+    
+    # Type checking
     check-types:
       glob: '*.{ts,tsx}'
       run: npm run check:types
+      priority: 3
+    
+    # Check for secrets and sensitive data
+    check-secrets:
+      glob: '*'
+      run: |
+        if grep -r --include="*.{js,ts,jsx,tsx,json,env*}" -E "(api_key|password|secret|token|key)" {staged_files}; then
+          echo "❌ Potential secrets found in staged files!"
+          exit 1
+        fi
+      priority: 4
+    
+    # Check dependencies
+    check-deps:
+      glob: 'package*.json'
+      run: npm run check:deps
+      priority: 5
+    
+    # I18n validation
+    check-i18n:
+      glob: 'src/locales/**/*.json'
+      run: npm run check:i18n
+      priority: 6
+
+# Additional validation before pushing
+pre-push:
+  parallel: true
+  commands:
+    # Ensure tests pass
+    test:
+      run: npm run test
+      priority: 1
+    
+    # Build check
+    build:
+      run: npm run build
       priority: 2
+    
+    # Check for TODO/FIXME comments in production
+    check-todos:
+      run: |
+        if git diff --cached --name-only | xargs grep -l "TODO\|FIXME\|XXX"; then
+          echo "⚠️  Found TODO/FIXME comments. Consider resolving before pushing."
+          echo "Continue anyway? (y/N)"
+          read -r response
+          case "$response" in
+            [yY][eE][sS]|[yY]) 
+              echo "Proceeding with push..."
+              ;;
+            *)
+              echo "Push cancelled."
+              exit 1
+              ;;
+          esac
+        fi
+      priority: 3
+
+# Skip hooks configuration
+skip_output:
+  - meta
+  - summary
+
+# Only run on specific branches (optional)
+# only:
+#   - main
+#   - develop
