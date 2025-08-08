@@ -7,9 +7,9 @@ export async function GET(request: Request) {
     const postSlug = searchParams.get('post') || 'bai-viet-1'; // Default post slug
     const pageSlug = searchParams.get('page') || 've-chung-toi-1222'; // Default page slug
 
-    console.log(`🔍 Comparing API calls:`);
-    console.log(`📄 Post slug: ${postSlug}`);
-    console.log(`📄 Page slug: ${pageSlug}`);
+    console.info(`🔍 Comparing API calls:`);
+    console.info(`📄 Post slug: ${postSlug}`);
+    console.info(`📄 Page slug: ${pageSlug}`);
 
     // Test both APIs
     const [post, page] = await Promise.all([
