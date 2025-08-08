@@ -1,6 +1,6 @@
-import { AppConfig } from "@/utils/AppConfig";
-import axiosInstance from "./Axios";
-import { cacheService } from "./CacheService";
+import { AppConfig } from '@/utils/AppConfig';
+import axiosInstance from './Axios';
+import { cacheService } from './CacheService';
 
 export type Post = {
   id: number;
@@ -66,7 +66,7 @@ export type Post = {
     slug: string;
   }>;
   tags: string[];
-  post_status?: "draft" | "published" | "archived";
+  post_status?: 'draft' | 'published' | 'archived';
   viewCount: number;
   readingTime: number;
   isFeatured: boolean;
@@ -199,16 +199,16 @@ class StrapiApiService {
     filters?: Record<string, any>;
     locale?: string;
   }): Promise<PostsResponse> {
-    const cacheKey = `posts:${params?.locale || "en"}:all`;
+    const cacheKey = `posts:${params?.locale || 'en'}:all`;
 
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("populate", "*");
+          searchParams.append('populate', '*');
           if (params?.locale) {
-            searchParams.append("locale", params.locale);
+            searchParams.append('locale', params.locale);
           }
 
           const response = await axiosInstance.get(
@@ -216,7 +216,7 @@ class StrapiApiService {
           );
           return response.data;
         } catch (error) {
-          console.error("Error fetching posts:", error);
+          console.error('Error fetching posts:', error);
           return {
             data: [],
             meta: {
@@ -236,7 +236,7 @@ class StrapiApiService {
 
   async getPostBySlug(
     slug: string,
-    locale: string = "en",
+    locale: string = 'en',
   ): Promise<Post | null> {
     const cacheKey = `post:${locale}:${slug}`;
 
@@ -245,15 +245,15 @@ class StrapiApiService {
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("filters[slug][$eq]", slug);
-          searchParams.append("populate", "*");
-          searchParams.append("locale", locale);
+          searchParams.append('filters[slug][$eq]', slug);
+          searchParams.append('populate', '*');
+          searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(
             `/posts?${searchParams.toString()}`,
           );
           console.info(
-            "url request post slug",
+            'url request post slug',
             `/posts?${searchParams.toString()}`,
           );
           if (!response?.data) {
@@ -265,7 +265,7 @@ class StrapiApiService {
 
           return response?.data?.data ? response?.data?.data[0] : null;
         } catch (error) {
-          console.error("Error fetching post by slug:", error);
+          console.error('Error fetching post by slug:', error);
           return null;
         }
       },
@@ -274,16 +274,16 @@ class StrapiApiService {
   }
 
   async getCategories(): Promise<CategoriesResponse> {
-    const cacheKey = "categories:all";
+    const cacheKey = 'categories:all';
 
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
-          const response = await axiosInstance.get("/categories");
+          const response = await axiosInstance.get('/categories');
           return response.data;
         } catch (error) {
-          console.error("Error fetching categories:", error);
+          console.error('Error fetching categories:', error);
           return {
             data: [],
             meta: {
@@ -302,23 +302,23 @@ class StrapiApiService {
   }
 
   async getFeaturedPosts(): Promise<PostsResponse> {
-    const cacheKey = "posts:featured";
+    const cacheKey = 'posts:featured';
 
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("filters[isFeatured][$eq]", "true");
-          searchParams.append("populate", "*");
-          searchParams.append("sort", "publishedAt:desc");
+          searchParams.append('filters[isFeatured][$eq]', 'true');
+          searchParams.append('populate', '*');
+          searchParams.append('sort', 'publishedAt:desc');
 
           const response = await axiosInstance.get(
             `/posts?${searchParams.toString()}`,
           );
           return response.data;
         } catch (error) {
-          console.error("Error fetching featured posts:", error);
+          console.error('Error fetching featured posts:', error);
           return {
             data: [],
             meta: {
@@ -344,16 +344,16 @@ class StrapiApiService {
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("filters[categories][slug][$eq]", categorySlug);
-          searchParams.append("populate", "*");
-          searchParams.append("sort", "publishedAt:desc");
+          searchParams.append('filters[categories][slug][$eq]', categorySlug);
+          searchParams.append('populate', '*');
+          searchParams.append('sort', 'publishedAt:desc');
 
           const response = await axiosInstance.get(
             `/posts?${searchParams.toString()}`,
           );
           return response.data;
         } catch (error) {
-          console.error("Error fetching posts by category:", error);
+          console.error('Error fetching posts by category:', error);
           return {
             data: [],
             meta: {
@@ -378,16 +378,16 @@ class StrapiApiService {
     filters?: Record<string, any>;
     locale?: string;
   }): Promise<PagesResponse> {
-    const cacheKey = `pages:${params?.locale || "en"}:${params?.page || "all"}`;
-    console.info("Fetching pages:", cacheKey);
+    const cacheKey = `pages:${params?.locale || 'en'}:${params?.page || 'all'}`;
+    console.info('Fetching pages:', cacheKey);
     return await cacheService.remember(
       cacheKey,
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("populate", "*");
+          searchParams.append('populate', '*');
           if (params?.locale) {
-            searchParams.append("locale", params.locale);
+            searchParams.append('locale', params.locale);
           }
 
           const response = await axiosInstance.get(
@@ -395,7 +395,7 @@ class StrapiApiService {
           );
           return response.data;
         } catch (error) {
-          console.error("Error fetching pages:", error);
+          console.error('Error fetching pages:', error);
           return {
             data: [],
             meta: {
@@ -415,7 +415,7 @@ class StrapiApiService {
 
   async getPageBySlug(
     slug: string,
-    locale: string = "en",
+    locale: string = 'en',
   ): Promise<Page | null> {
     const cacheKey = `page:${locale}:${slug}`;
 
@@ -424,9 +424,9 @@ class StrapiApiService {
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("filters[slug][$eq]", slug);
-          searchParams.append("populate", "*");
-          searchParams.append("locale", locale);
+          searchParams.append('filters[slug][$eq]', slug);
+          searchParams.append('populate', '*');
+          searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(
             `/pages?${searchParams.toString()}`,
@@ -441,7 +441,7 @@ class StrapiApiService {
 
           return response.data.data[0];
         } catch (error) {
-          console.error("Error fetching page by slug:", error);
+          console.error('Error fetching page by slug:', error);
           return null;
         }
       },
@@ -449,7 +449,7 @@ class StrapiApiService {
     );
   }
 
-  async getHomepage(locale: string = "en"): Promise<Page | null> {
+  async getHomepage(locale: string = 'en'): Promise<Page | null> {
     const cacheKey = `page:${locale}:homepage`;
 
     return await cacheService.remember(
@@ -457,11 +457,11 @@ class StrapiApiService {
       async () => {
         try {
           const searchParams = new URLSearchParams();
-          searchParams.append("filters[isHomepage][$eq]", "true");
-          searchParams.append("populate[featuredImage]", "*");
-          searchParams.append("populate[seo]", "*");
-          searchParams.append("populate[components]", "*");
-          searchParams.append("locale", locale);
+          searchParams.append('filters[isHomepage][$eq]', 'true');
+          searchParams.append('populate[featuredImage]', '*');
+          searchParams.append('populate[seo]', '*');
+          searchParams.append('populate[components]', '*');
+          searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(
             `/pages?${searchParams.toString()}`,
@@ -473,7 +473,7 @@ class StrapiApiService {
 
           return response.data.data[0];
         } catch (error) {
-          console.error("Error fetching homepage:", error);
+          console.error('Error fetching homepage:', error);
           return null;
         }
       },
@@ -482,8 +482,8 @@ class StrapiApiService {
   }
 
   async getNavigation(
-    name: string = "main",
-    locale: string = "en",
+    name: string = 'main',
+    locale: string = 'en',
   ): Promise<any> {
     const cacheKey = `navigation:${name}:${locale}`;
 
@@ -498,9 +498,9 @@ class StrapiApiService {
 
           // If we got data, return it
           if (
-            response.data &&
-            Array.isArray(response.data) &&
-            response.data.length > 0
+            response.data
+            && Array.isArray(response.data)
+            && response.data.length > 0
           ) {
             return response.data;
           }
@@ -515,9 +515,9 @@ class StrapiApiService {
             );
 
             if (
-              fallbackResponse.data &&
-              Array.isArray(fallbackResponse.data) &&
-              fallbackResponse.data.length > 0
+              fallbackResponse.data
+              && Array.isArray(fallbackResponse.data)
+              && fallbackResponse.data.length > 0
             ) {
               return fallbackResponse.data;
             }
@@ -526,7 +526,7 @@ class StrapiApiService {
           // If still no data, return empty array
           return [];
         } catch (error) {
-          console.error("Error fetching navigation:", error);
+          console.error('Error fetching navigation:', error);
 
           // If we failed to fetch for the requested locale and it's not the default locale, try default locale
           if (locale !== AppConfig.defaultLocale) {
@@ -539,15 +539,15 @@ class StrapiApiService {
               );
 
               if (
-                fallbackResponse.data &&
-                Array.isArray(fallbackResponse.data) &&
-                fallbackResponse.data.length > 0
+                fallbackResponse.data
+                && Array.isArray(fallbackResponse.data)
+                && fallbackResponse.data.length > 0
               ) {
                 return fallbackResponse.data;
               }
             } catch (fallbackError) {
               console.error(
-                "Error fetching navigation with default locale:",
+                'Error fetching navigation with default locale:',
                 fallbackError,
               );
             }
@@ -562,7 +562,7 @@ class StrapiApiService {
 
   // Cache invalidation methods
   async invalidateNavigationCache(
-    navigationName: string = "Navigation",
+    navigationName: string = 'Navigation',
     locale?: string,
   ): Promise<boolean> {
     if (locale) {
@@ -585,20 +585,20 @@ class StrapiApiService {
   }
 
   async invalidateAllPosts(): Promise<boolean> {
-    return await cacheService.deletePattern("posts:*");
+    return await cacheService.deletePattern('posts:*');
   }
 
   async invalidateAllPages(): Promise<boolean> {
-    return await cacheService.deletePattern("pages:*");
+    return await cacheService.deletePattern('pages:*');
   }
 
   getImageUrl(url: string): string {
-    if (url.startsWith("http")) {
+    if (url.startsWith('http')) {
       return url;
     }
-    const strapiBaseUrl =
-      process.env.NEXT_PUBLIC_STRAPI_HOST?.replace("/api", "") ||
-      "http://localhost:1337";
+    const strapiBaseUrl
+      = process.env.NEXT_PUBLIC_STRAPI_HOST?.replace('/api', '')
+        || 'http://localhost:1337';
     return `${strapiBaseUrl}${url}`;
   }
 }
