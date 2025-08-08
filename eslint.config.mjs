@@ -74,7 +74,6 @@ export default antfu(
       'style/indent': 'warn', // Don't auto-fix indentation
       'style/quotes': 'warn', // Don't auto-fix quote style
       'style/semi': 'warn', // Don't auto-fix semicolons
-      'import/order': 'warn', // Don't auto-fix import ordering
       'react/jsx-curly-brace-presence': 'warn', // Don't auto-fix JSX braces
       'perfectionist/sort-objects': 'off', // Disable object sorting
       'perfectionist/sort-keys': 'off', // Disable key sorting
