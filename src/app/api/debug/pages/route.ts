@@ -3,12 +3,12 @@ import { strapiApi } from '@/libs/StrapiApi';
 
 export async function GET() {
   try {
-    console.log('🔍 Debug: Fetching all pages...');
+    console.info('🔍 Debug: Fetching all pages...');
 
     // Get all pages to see what's available
     const pagesResponse = await strapiApi.getPages();
 
-    console.log('📊 All pages response:', JSON.stringify(pagesResponse, null, 2));
+    console.info('📊 All pages response:', JSON.stringify(pagesResponse, null, 2));
 
     const pages = pagesResponse.data || [];
 
