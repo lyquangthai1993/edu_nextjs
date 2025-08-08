@@ -1,7 +1,7 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { Link } from '@/libs/I18nNavigation';
 import { LocaleSwitcher } from '@/components/LocaleSwitcher';
 import Navigation from '@/components/Navigation';
+import { Link } from '@/libs/I18nNavigation';
 import { BaseTemplate } from '@/templates/BaseTemplate';
 
 export default async function Layout(props: {

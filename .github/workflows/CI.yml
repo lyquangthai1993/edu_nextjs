@@ -196,4 +196,3 @@ jobs:
       - name: Run unlighthouse
         run: |
           npm run test:lighthouse
-

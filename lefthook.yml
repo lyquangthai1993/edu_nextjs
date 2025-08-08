@@ -14,19 +14,25 @@ pre-commit:
       run: npx --no -- prettier --write {staged_files}
       stage_fixed: true
       priority: 1
-    
+
     lint:
       glob: '*.{js,jsx,ts,tsx}'
-      run: npx --no -- eslint --fix --no-warn-ignored {staged_files}
-      stage_fixed: true
+      run: npx --no -- eslint --no-warn-ignored {staged_files}
       priority: 2
-    
+
+    lint-fix:
+      glob: '*.{js,jsx,ts,tsx}'
+      run: npx --no -- eslint --fix --no-warn-ignored --fix-type suggestion,layout {staged_files}
+      stage_fixed: true
+      priority: 3
+      skip: true # Skip by default, enable manually when needed
+
     # Type checking
     check-types:
       glob: '*.{ts,tsx}'
       run: npm run check:types
       priority: 3
-    
+
     # Check for secrets and sensitive data
     check-secrets:
       glob: '*'
@@ -36,13 +42,13 @@ pre-commit:
           exit 1
         fi
       priority: 4
-    
+
     # Check dependencies
     check-deps:
       glob: 'package*.json'
       run: npm run check:deps
       priority: 5
-    
+
     # I18n validation
     check-i18n:
       glob: 'src/locales/**/*.json'
@@ -57,12 +63,12 @@ pre-push:
     test:
       run: npm run test
       priority: 1
-    
+
     # Build check
     build:
       run: npm run build
       priority: 2
-    
+
     # Check for TODO/FIXME comments in production
     check-todos:
       run: |
@@ -71,7 +77,7 @@ pre-push:
           echo "Continue anyway? (y/N)"
           read -r response
           case "$response" in
-            [yY][eE][sS]|[yY]) 
+            [yY][eE][sS]|[yY])
               echo "Proceeding with push..."
               ;;
             *)

@@ -1,8 +1,8 @@
 # This file has been temporarily disabled to fix workflow errors
-# 
+#
 # To re-enable Crowdin integration:
 # 1. Add CROWDIN_PROJECT_ID to GitHub secrets
-# 2. Add CROWDIN_PERSONAL_TOKEN to GitHub secrets  
+# 2. Add CROWDIN_PERSONAL_TOKEN to GitHub secrets
 # 3. Restore the original configuration below
 #
 # Original configuration:

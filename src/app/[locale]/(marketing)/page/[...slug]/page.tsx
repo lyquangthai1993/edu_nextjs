@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import type { Metadata } from 'next';
-import Image from 'next/image';
 import { BlocksRenderer } from '@strapi/blocks-react-renderer';
+import Image from 'next/image';
 import { strapiApi } from '@/libs/StrapiApi';
 
 type PageProps = {
@@ -108,7 +108,7 @@ export async function generateStaticParams() {
   try {
     const locales = ['en', 'vi']; // Add your supported locales here
     const allParams: { locale: string; slug: string[] }[] = [];
-    
+
     for (const locale of locales) {
       const pagesResponse = await strapiApi.getPages({ locale });
       const localeParams = pagesResponse.data.map(page => ({
@@ -117,7 +117,7 @@ export async function generateStaticParams() {
       }));
       allParams.push(...localeParams);
     }
-    
+
     return allParams;
   } catch (error) {
     console.error('Error generating static params for pages:', error);
@@ -164,11 +164,13 @@ export default async function DynamicPage({ params }: PageProps) {
 
         {page.content && (
           <div className="content">
-            {Array.isArray(page.content) ? (
-              <BlocksRenderer content={page.content} blocks={blocksConfig} />
-            ) : (
-              <div dangerouslySetInnerHTML={{ __html: page.content }} />
-            )}
+            {Array.isArray(page.content)
+              ? (
+                  <BlocksRenderer content={page.content} blocks={blocksConfig} />
+                )
+              : (
+                  <div dangerouslySetInnerHTML={{ __html: page.content }} />
+                )}
           </div>
         )}
 

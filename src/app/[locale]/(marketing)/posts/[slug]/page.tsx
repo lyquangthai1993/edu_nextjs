@@ -178,11 +178,13 @@ export default async function PostDetailPage({ params }: PostPageProps) {
 
       <div className="prose prose-lg max-w-none">
         <div className="text-gray-800 leading-relaxed">
-          {Array.isArray(post.content) ? (
-            <BlocksRenderer content={post.content} blocks={blocksConfig} />
-          ) : (
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
-          )}
+          {Array.isArray(post.content)
+            ? (
+                <BlocksRenderer content={post.content} blocks={blocksConfig} />
+              )
+            : (
+                <div dangerouslySetInnerHTML={{ __html: post.content }} />
+              )}
         </div>
       </div>
 
