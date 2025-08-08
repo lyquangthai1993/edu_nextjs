@@ -1,5 +1,3 @@
-import { integer, pgTable, serial, timestamp } from 'drizzle-orm/pg-core';
-
 // This file defines the structure of your database tables using the Drizzle ORM.
 
 // To modify the database schema:
@@ -13,12 +11,10 @@ import { integer, pgTable, serial, timestamp } from 'drizzle-orm/pg-core';
 // Need a database for production? Check out https://www.prisma.io/?via=nextjsboilerplate
 // Tested and compatible with Next.js Boilerplate
 
-export const counterSchema = pgTable('counter', {
-  id: serial('id').primaryKey(),
-  count: integer('count').default(0),
-  updatedAt: timestamp('updated_at', { mode: 'date' })
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-  createdAt: timestamp('created_at', { mode: 'date' }).defaultNow().notNull(),
-});
+// Add your database schemas here
+// Example:
+// export const userSchema = pgTable('users', {
+//   id: serial('id').primaryKey(),
+//   name: text('name').notNull(),
+//   email: text('email').unique().notNull(),
+// });
