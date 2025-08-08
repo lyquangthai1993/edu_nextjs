@@ -245,7 +245,7 @@ class StrapiApiService {
           searchParams.append('locale', locale);
 
           const response = await axiosInstance.get(`/posts?${searchParams.toString()}`);
-          console.log('url request post slug', `/posts?${searchParams.toString()}`);
+          console.info('url request post slug', `/posts?${searchParams.toString()}`);
           if (!response?.data) {
             return null;
           }
@@ -411,8 +411,8 @@ class StrapiApiService {
 
           const response = await axiosInstance.get(`/pages?${searchParams.toString()}`);
 
-          console.log(`🔍 API URL: /pages?${searchParams.toString()}`);
-          console.log(`📊 Response:`, response.data);
+          console.info(`🔍 API URL: /pages?${searchParams.toString()}`);
+          console.info(`📊 Response:`, response.data);
 
           if (response.data.data.length === 0) {
             return null;
@@ -491,7 +491,7 @@ class StrapiApiService {
           // If we failed to fetch for the requested locale and it's not the default locale, try default locale
           if (locale !== AppConfig.defaultLocale) {
             try {
-              console.log(`Failed to fetch navigation for locale '${locale}', trying default locale '${AppConfig.defaultLocale}'`);
+              console.info(`Failed to fetch navigation for locale '${locale}', trying default locale '${AppConfig.defaultLocale}'`);
               const fallbackResponse = await axiosInstance.get(`/navigation/render/${name}?type=TREE&populate=*&locale=${AppConfig.defaultLocale}`);
 
               if (fallbackResponse.data && Array.isArray(fallbackResponse.data) && fallbackResponse.data.length > 0) {
