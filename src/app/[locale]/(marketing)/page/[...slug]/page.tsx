@@ -169,6 +169,7 @@ export default async function DynamicPage({ params }: PageProps) {
                   <BlocksRenderer content={page.content} blocks={blocksConfig} />
                 )
               : (
+                  // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                   <div dangerouslySetInnerHTML={{ __html: page.content }} />
                 )}
           </div>

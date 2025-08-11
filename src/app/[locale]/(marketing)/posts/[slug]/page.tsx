@@ -183,6 +183,7 @@ export default async function PostDetailPage({ params }: PostPageProps) {
                 <BlocksRenderer content={post.content} blocks={blocksConfig} />
               )
             : (
+                // eslint-disable-next-line react-dom/no-dangerously-set-innerhtml
                 <div dangerouslySetInnerHTML={{ __html: post.content }} />
               )}
         </div>

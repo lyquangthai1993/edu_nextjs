@@ -63,5 +63,12 @@
     "pcss",
     "postcss",
     "github-actions-workflow"
+  ],
+  "cSpell.words": [
+    "chromaui",
+    "commitlint",
+    "innerhtml",
+    "nextjs",
+    "unlighthouse"
   ]
 }
